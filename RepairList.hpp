@@ -8,7 +8,6 @@
 using std::string;
 using std::size_t;
 using std::ifstream;
-using namespace std;
 
 class RepairList {
 	
@@ -155,37 +154,55 @@ void RepairList::addToList(const Repair& newRequest)
 // right after the current position but do not make changes to the current position
 void RepairList::insertLoyal(const Repair& newRequest)
 {
-	_dailyList.insert(_nowServicing,1,newRequest);
+	std::list<Repair>::iterator it = _nowServicing;
+
+	if(it == _dailyList.end())
+	{
+		_dailyList.insert(it, newRequest);
+	}
+	else
+	{
+		it++;
+		_dailyList.insert(it, newRequest);
+	}
 }
 
 // TO DO
 // insert a new repair request before the current position of the list 
 void RepairList::insertPriority(const Repair& newRequest)
 {
-	_dailyList.insert(--_nowServicing,1,newRequest);
+	std::list<Repair>::iterator it = _nowServicing;
+	_dailyList.insert(it,newRequest);
+	_nowServicing--;
 }
 
 // TO DO
 // returns the vehicle that was serviced at given number in the list
 string RepairList::numberInRepairList(size_t number)
 {
-	cout << "HELLO" << endl;
-	return _nowServicing->vehicle();
+	std::list<Repair>::iterator it = _dailyList.begin();
+
+	for(int i = 0; i < number; i++){
+		it++;
+	}
+	it--;
+	return it->vehicle();
+
 }
 
 // TO DO
 // returns the maximum cost among all repairs
 double RepairList::maxCost()
 {
-	_dailyList.begin();
+	
 	double temp = 0;
-	for(int i=0; i < _dailyList.size(); i++){
-		cout << i << endl;
-		if(_nowServicing->cost() > temp){
-			temp = _nowServicing->cost();
+	std::list<Repair>::iterator it;
+	for(it = _dailyList.begin(); it != _dailyList.end(); ++it){
+		
+		if(it->cost() > temp){
+			temp = it->cost();
 		}
-		_nowServicing++;
 	}
-	cout << temp << endl;
+	
 	return temp;
 }

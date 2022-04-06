@@ -90,11 +90,9 @@ int main() {
 
   assertEquals("maxCost.RepairList.cost()", 667.18, monday.maxCost());
 
-
+  
   // Calculate Total Tests passed
   cout << endl << "Total tests passed : " << assertEquals.passed  << " out of "<<assertEquals.tests << endl;
-  
-  
 
   return 0;
 }
