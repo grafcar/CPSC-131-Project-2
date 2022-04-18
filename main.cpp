@@ -1,98 +1,139 @@
-#include <cstdlib>  // size_t
 #include <iostream>
 #include <string>
+#include <cmath>    // abs()
 
-#include "Repair.hpp"
-#include "RepairList.hpp"
+#include "TextReader.hpp"
+using namespace std;
 
-using std::cout;
-using std::endl;
-using std::string;
+// Global static variables
+static int testCount = 0;
+static const int testTotal = 16;
+static const string GREEN = "\033[32m";
+static const string RED = "\033[31m";
+static const string RESET = "\033[0m";
 
-// Helper Class
-struct AssertEquals {
-  static size_t tests;
-  static size_t passed;
+// Prototypes
 
-  template <typename T, typename U>
-  void operator() (string test_name, const T & expected, const U & actual) {
-    ++tests;
+template <typename T, typename U>
+bool assertEquals(const string& nameOfTest, const T& expected, const U& actual);
 
-    if (actual == expected) {
-      cout << "\033[32m" << "[PASSED] " << "\033[0m" << test_name << endl;
-      ++passed;
-    } 
-    else {
-      cout << "\033[31m" << "[FAILED] " << "\033[0m" << test_name
-	   << " - Expected: " << expected
-	   << ", Actual: " << actual
-	   << endl;
+
+template <typename T, typename U>
+bool assertVectorEquals(const string& nameOfTest, const vector<T>& expected, const vector<U>& actual);
+
+
+
+
+// Main
+int main(int argc, char const *argv[]) {
+    TextReader gen;
+    assertEquals("'.' is Punctuation :", true, gen.isEndPunctuation('.'));
+    assertEquals("'?' is Punctuation :", true, gen.isEndPunctuation('?'));
+    assertEquals("'!' is Punctuation :", true, gen.isEndPunctuation('!'));
+    assertEquals("'a' is Punctuation :", false, gen.isEndPunctuation('a'));
+
+    TextReader Frankenstein;
+    Frankenstein.readIn("Frankenstein or The Modern Prometheus by Mary Shelley.txt");
+
+    {
+        vector<string> expected = { "lovers,", "days", "lovers" };
+        assertVectorEquals("Values : Frankenstein 'youthful'", expected, Frankenstein.getValues("youthful"));
+
+        expected = { "out", "the", "the", "by", "in", "their", "on" };
+        assertVectorEquals("Values : Frankenstein 'marked'", expected, Frankenstein.getValues("marked"));
+
+        cout << " FRANK VAL " << Frankenstein.getValues("^").size() << endl;
+
+        assertEquals("Value Count : Frankenstein '^' > 0: ", true, Frankenstein.getValues("^").size() > 10);
+
+        cout << " FRANK VAL " << Frankenstein.getValues("^").size() << endl;
+        
+        assertEquals("Searching : Frankenstein 'rejoice' found", true, Frankenstein.search("rejoice"));
+
+        assertEquals("Followers Count : Frankenstein 'breeze'", 8, Frankenstein.howManyfollowers("breeze"));
+    
+        assertEquals("Followers Count : Frankenstein 'river'", 9, Frankenstein.howManyfollowers("river"));
     }
-  }
-};
-size_t AssertEquals::tests  = 0;
-size_t AssertEquals::passed = 0;
 
-int main() {
-  AssertEquals assertEquals;
-  RepairList   monday;
+    TextReader SleepyHollow;
+    SleepyHollow.readIn("The Legend of Sleep Hollow by Washington Irving.txt");
 
-  monday.loadAdvanceList("monday.csv");
-  assertEquals("RepairList.name()", "Amy Carpenter", monday.currRepair().name());
-  assertEquals("RepairList.services()", "brake pads", monday.currRepair().services());
-  assertEquals("RepairList.cost()", 328.71, monday.currRepair().cost());
-    
-  monday.next();
-  assertEquals("next. RepairList.vehicle()", "Buick", monday.currRepair().vehicle());
-  assertEquals("RepairList.cost()", 667.18, monday.currRepair().cost());
+    {
+        vector<string> expected = { "hill,","crests", "dell," };
+        assertVectorEquals("Values : SleepyHollow 'woody'", expected, SleepyHollow.getValues("woody"));
 
-  monday.next();
-  assertEquals("RepairList.date()", "9/28 11:00 am", monday.currRepair().date());
-  assertEquals("RepairList.services()", "flush radiator", monday.currRepair().services());
-  assertEquals("RepairList.cost()", 101.70, monday.currRepair().cost());
-    
-  monday.insertLoyal(Repair("Ana Caravelle", "Toyota Prius", "9/30 8:00 am", "high beams", 57.11));
-  assertEquals("insertLoyal.RepairList.cost()", 101.70, monday.currRepair().cost());
+        expected = { "which", "of", "of" };
+        assertVectorEquals("Values : SleepyHollow 'quarter'", expected, SleepyHollow.getValues("quarter"));
 
-  monday.next();
-  assertEquals("next.RepairList.cost()", 57.11, monday.currRepair().cost());
+        cout << " SLEEPYHOLLOW " << SleepyHollow.getValues("^").size() << endl;
 
-  monday.insertLoyal(Repair("Lazy Tumbleweed", "Chevy Spark", "9/30 10:00 am", "fuel pump", 192.00));
-  assertEquals("insertLoyal.RepairList.cost()", 57.11, monday.currRepair().cost());
+        assertEquals("Value Count : SleepyHollow '^' < 0", false, SleepyHollow.getValues("^").size() < 10);
+
+        cout << " SLEEPYHOLLOW " << SleepyHollow.getValues("^").size() << endl;
+
+        assertEquals("Searching : SleepyHollow 'complexity' found", false, SleepyHollow.search("complexity"));
+
+        assertEquals("Followers Count : SleepyHollow 'complexity'", 0, SleepyHollow.howManyfollowers("complexity"));
+        
+        assertEquals("Followers Count : SleepyHollow 'river'", 2, SleepyHollow.howManyfollowers("river"));
+        
+
+    }
 	
-  monday.addToList(Repair("DJ Shadow", "Ford Focus", "9/30 11:00 am",  "replace battery", 99.11));
-  assertEquals("addToList.RepairList.cost()", 57.11, monday.currRepair().cost());
-	
-  monday.next();
-  assertEquals("next.RepairList.name())", "Lazy Tumbleweed", monday.currRepair().name());
-    
-  monday.next();
-  assertEquals("next.RepairList.vehicle()", "VW Bettle", monday.currRepair().vehicle());
 
-  monday.insertPriority(Repair("Alice Wonderland", "BMW", "10/01 10:00 am", "brakes", 250.00));
-  assertEquals("insertPriority.RepairList.vehicle()", "BMW", monday.currRepair().vehicle());
+    cout << endl << testCount << " tests passed out of " << testTotal << " total tests" << endl
+		<< 100.0 * (float)testCount / (float)testTotal << "/100" << endl;
 
-  monday.next();
-  assertEquals("next.RepairList.name()", "Eloise Duval", monday.currRepair().name());
+	//cin.get();
+    return 0;
+}
 
-     
-  monday.addToList(Repair("Oscar La Fontaine", "Kia", "9/30 5:05 pm",  "high beam", 19.99));
+// Helper Functions
 
-  monday.next();
- 
-  assertEquals("next.RepairList.vehicle()", "Ford Focus", monday.currRepair().vehicle());
 
-  assertEquals("size.RepairList.services()", 9, monday.size());
+template <typename T, typename U>
+bool assertVectorEquals(const string& nameOfTest, const vector<T>& expected, const vector<U>& actual) {
+    if (expected.size() == actual.size()) {
+        for (size_t i = 0; i < expected.size(); i++) {
+            if (expected[i] != actual[i]) {
+                // Red colored text
+                cout << RED << "FAILED "
+                     << RESET << nameOfTest << ": expected '" << expected[i] << "' but actually '" << actual[i] << "'" << endl;
+                return false;
+            }
+        }
 
-  assertEquals("numberInRepairList.RepairList.vehicle()", "BMW", monday.numberInRepairList(6));
+        // Green colored text
+        cout << GREEN << "PASSED "
+             << RESET << nameOfTest << ": expected and actual lists match: {";
+        for (int i = 0; i < expected.size(); i++) {
+            cout << " " << expected[i];
+        }
+        cout << " }" << endl;
 
-  assertEquals("numberInRepairList.RepairList.vehicle()", "Ford Focus", monday.numberInRepairList(8));
+        testCount++;
+        return true;
+    }
 
-  assertEquals("maxCost.RepairList.cost()", 667.18, monday.maxCost());
+    // Red colored text
+    cout << RED << "FAILED "
+         << RESET << nameOfTest << ": expected size '" << expected.size() << "' but actually size is '" << actual.size() << "'" << endl;
+    return false;
+}
 
-  
-  // Calculate Total Tests passed
-  cout << endl << "Total tests passed : " << assertEquals.passed  << " out of "<<assertEquals.tests << endl;
 
-  return 0;
+
+template <typename T, typename U>
+bool assertEquals(const string& nameOfTest, const T& expected, const U& actual) {
+    if (expected == actual) {
+        // Green colored text
+        cout << RESET << GREEN << "PASSED "
+            << RESET << nameOfTest << GREEN << ": expected and actual '" << RESET << actual << GREEN << "'" << RESET << endl;
+        testCount++;
+        return true;
+    }
+    // Red colored text
+    cout << RESET << RED << "FAILED "
+        << RESET << nameOfTest << RED << ": expected '" << RESET << expected << RED << "' but actually '" << RESET << actual << RED << "'" << RESET << endl;
+    return false;
 }
