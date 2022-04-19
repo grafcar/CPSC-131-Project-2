@@ -59,8 +59,7 @@ void TextReader::readIn(const string& filename) {
         }
         cout << " STILL IN THE LOOP " << endl;
     }
-    
-  
+ 
 }
 
 
