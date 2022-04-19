@@ -42,12 +42,8 @@ int main(int argc, char const *argv[]) {
         expected = { "out", "the", "the", "by", "in", "their", "on" };
         assertVectorEquals("Values : Frankenstein 'marked'", expected, Frankenstein.getValues("marked"));
 
-        cout << " FRANK VAL " << Frankenstein.getValues("^").size() << endl;
-
         assertEquals("Value Count : Frankenstein '^' > 0: ", true, Frankenstein.getValues("^").size() > 10);
 
-        cout << " FRANK VAL " << Frankenstein.getValues("^").size() << endl;
-        
         assertEquals("Searching : Frankenstein 'rejoice' found", true, Frankenstein.search("rejoice"));
 
         assertEquals("Followers Count : Frankenstein 'breeze'", 8, Frankenstein.howManyfollowers("breeze"));
@@ -65,11 +61,7 @@ int main(int argc, char const *argv[]) {
         expected = { "which", "of", "of" };
         assertVectorEquals("Values : SleepyHollow 'quarter'", expected, SleepyHollow.getValues("quarter"));
 
-        cout << " SLEEPYHOLLOW " << SleepyHollow.getValues("^").size() << endl;
-
         assertEquals("Value Count : SleepyHollow '^' < 0", false, SleepyHollow.getValues("^").size() < 10);
-
-        cout << " SLEEPYHOLLOW " << SleepyHollow.getValues("^").size() << endl;
 
         assertEquals("Searching : SleepyHollow 'complexity' found", false, SleepyHollow.search("complexity"));
 
