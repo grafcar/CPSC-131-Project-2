@@ -39,7 +39,7 @@ void TextReader::readIn(const string& filename) {
     string newWord;
 
     while(_in >> newWord){
-        //_in.ignore();
+       
         sanitize(newWord);
         if (isEndPunctuation(newWord[newWord.size()-1])){
 
@@ -53,14 +53,12 @@ void TextReader::readIn(const string& filename) {
             oldWord = "^";
 
         }else{
-            //oldWord = "^";
             wordFollowers[oldWord].push_back(newWord);
             oldWord = newWord;
         }
-        //cout << " STILL IN THE LOOP " << endl;
+       
     }
     
-  
 }
 
 
@@ -76,8 +74,6 @@ bool TextReader::isEndPunctuation(const char& character) {
 
 
 vector<string> TextReader::getValues(const string& key) {
-
-    //cout << key << endl;
 
     return wordFollowers[key];
 
